@@ -17,9 +17,19 @@ class Controller:
 
         self.linear_speed = 0.2 # m/s
         self.angular_speed = 0.2 # m/s
-        self.goal_angle = 
+        self.goal_angle = radians(90) # rad
+        self.stop_dist = 1 # m
+        
+
+        self.go , self.rotate = 0 , 1
+        self.state = self.go
 
 
-    def laser_callback(self, msg):
-        pass
+    def laser_callback(self, msg:LaserScan):
+        if msg.ranges[0] <= self.stop_dist:
+            self.state = self.rotate
+
+
+    def get_heading():
+        pose = 
 
