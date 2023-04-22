@@ -19,6 +19,7 @@ class Controller:
         self.angular_speed = 0.2 # m/s
         self.goal_angle = radians(90) # rad
         self.stop_dist = 1 # m
+        self.epsilon = 0.0001
         
 
         self.go , self.rotate = 0 , 1
@@ -30,6 +31,44 @@ class Controller:
             self.state = self.rotate
 
 
-    def get_heading():
-        pose = 
+    def get_heading(self):
+        msg = rospy.wait_for_message("/odom", Odometry)
+        orientation = msg.pose.pose.orientation
+        roll, pitch, yaw = tf.transformations.euler_from_quaternion(
+            orientation.x, orientation.y, orientation.z, orientation.w
+        )
+
+        return yaw
+    
+
+    def run(self):
+
+        while not rospy.is_shutdown():
+            if self.state == self.go:
+                twist = Twist()
+                twist.linear.x = self.linear_speed
+                self.cmd_publisher.publish(twist)
+                continue
+                
+            self.cmd_publisher(Twist())
+            rospy.sleep(1)
+
+            remaining = self.goal_angle
+            prev_angle = self.get_heading()
+
+            twist = Twist()
+            twist.angular.z = self.angular_speed
+            self.cmd_publisher(twist)
+
+
+            while remaining >= self.epsilon:
+                curren_angle = self.get_heading
+                delta = abs(prev_angle - curren_angle)
+                remaining -= delta
+
+            self.cmd_publisher.publish(Twist())
+
+            rospy.sleep(1)
+
+            self.state = self.go
 
